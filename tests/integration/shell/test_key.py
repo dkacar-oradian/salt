@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import logging
 import os
 import shutil
 import tempfile
@@ -21,6 +22,8 @@ from tests.support.helpers import (
 from tests.support.mixins import ShellCaseCommonTestsMixin
 from tests.support.runtests import RUNTIME_VARS
 from tests.support.unit import skipIf
+
+log = logging.getLogger(__name__)
 
 USERA = "saltdev"
 USERA_PWD = "saltdev"
@@ -48,6 +51,15 @@ class KeyTest(ShellCase, ShellCaseCommonTestsMixin):
     """
 
     _call_binary_ = "salt-key"
+
+    @classmethod
+    def setUpClass(cls):
+        proxy_key_file = os.path.join(
+            RUNTIME_VARS.RUNTIME_CONFIGS["master"]["pki_dir"], "minions", "proxytest"
+        )
+        log.debug("Proxy minion key path: %s", proxy_key_file)
+        if os.path.exists(proxy_key_file):
+            os.unlink(proxy_key_file)
 
     @slowTest
     def test_remove_key(self):
